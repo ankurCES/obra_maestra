@@ -5,10 +5,11 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential, load_model
-from keras.layers import Dense
+from keras.layers import Dense, Dropout
+from keras.constraints import maxnorm
 from keras.wrappers.scikit_learn import KerasClassifier
 
-nb_epochs = 100
+nb_epochs = 10
 batch_size = 5
 
 def read_data(input_file, region_codes):
@@ -35,12 +36,14 @@ def generate_conf_matrix(region_df):
     plt.savefig('plots/confusion_matrix.png')
 
 def create_model(optimizer='rmsprop', init='glorot_uniform'):
-	model = Sequential()
-	model.add(Dense(12, input_dim=12, kernel_initializer=init, activation='relu'))
-	model.add(Dense(8, kernel_initializer=init, activation='relu'))
-	model.add(Dense(1, kernel_initializer=init, activation='sigmoid'))
-	model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-	return model
+    model = Sequential()
+    model.add(Dense(12, input_dim=12, kernel_initializer=init, activation='relu', kernel_constraint=maxnorm(3)))
+    model.add(Dropout(0.2))
+    model.add(Dense(8, kernel_initializer=init, activation='relu', kernel_constraint=maxnorm(3)))
+    model.add(Dropout(0.2))
+    model.add(Dense(1, kernel_initializer=init, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+    return model
 
 def run_classifier(region_id):
     df_Area = read_data( 'globalterrorismdb_0718dist.csv', [region_id])
