@@ -8,7 +8,7 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
 
-nb_epochs = 50
+nb_epochs = 10
 batch_size = 5
 
 def read_data(input_file, region_codes):
@@ -47,10 +47,10 @@ def run_classifier(region_id):
 
     df_Region = df_Area.drop([ 'region', 'claimed', 'nkillter', 'nwound','nwoundte'], axis=1)
 
-    df_Region['nkill'].fillna(0.686445, inplace=True)
-    df_Region['latitude'].fillna(47.004651, inplace=True)
-    df_Region['longitude'].fillna(10.921231, inplace=True)
-    df_Region['natlty1'].fillna(167.954530, inplace=True)
+    df_Region['nkill'].fillna(df_Region['nkill'].mean(), inplace=True)
+    df_Region['latitude'].fillna(df_Region['latitude'].mean(), inplace=True)
+    df_Region['longitude'].fillna(df_Region['longitude'].mean(), inplace=True)
+    df_Region['natlty1'].fillna(df_Region['natlty1'].mean(), inplace=True)
 
     generate_kill_plot(df_Region)
 
@@ -72,6 +72,9 @@ def run_classifier(region_id):
 
 
     model = create_model(optimizer='adam', init='glorot_uniform')
+
+    model.summary()
+
     model.fit(X_train, y_train, batch_size=batch_size, epochs=nb_epochs, verbose=1)
 
     loss, acc = model.evaluate(X_test, y_test, verbose=0)
