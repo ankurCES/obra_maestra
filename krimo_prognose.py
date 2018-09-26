@@ -8,7 +8,7 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
 
-nb_epochs = 10
+nb_epochs = 100
 batch_size = 5
 
 def read_data(input_file, region_codes):
